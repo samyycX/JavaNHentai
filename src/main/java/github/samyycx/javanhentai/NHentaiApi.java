@@ -36,12 +36,21 @@ public class NHentaiApi implements Interceptor {
     private Retrofit retrofit;
     private OkHttpClient client;
     private NHentaiApiService api;
+    private int timeout = 10000;
     private NHentaiImageAPI imageApi = new NHentaiImageAPI();
 
     public NHentaiApi(@Nullable Proxy proxy, String userAgent, String cfClearanceId) {
         this.proxy = proxy;
         this.userAgent = userAgent;
         this.cfClearanceId = cfClearanceId;
+        getRetrofitApi();
+    }
+
+    public NHentaiApi(@Nullable Proxy proxy, String userAgent, String cfClearanceId, int timeout) {
+        this.proxy = proxy;
+        this.userAgent = userAgent;
+        this.cfClearanceId = cfClearanceId;
+        this.timeout = timeout;
         getRetrofitApi();
     }
 
@@ -60,9 +69,9 @@ public class NHentaiApi implements Interceptor {
         if (api == null) {
 
             this.client = new OkHttpClient.Builder()
-                    .readTimeout(10, TimeUnit.SECONDS)
-                    .writeTimeout(10, TimeUnit.SECONDS)
-                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(timeout, TimeUnit.MILLISECONDS)
+                    .writeTimeout(timeout, TimeUnit.MILLISECONDS)
+                    .connectTimeout(timeout, TimeUnit.MILLISECONDS)
                     .addInterceptor(this)
                     .proxy(proxy)
                     .build();
