@@ -18,7 +18,7 @@ public class NResult<T> {
         this.data = data;
     }
 
-    public boolean error() {
+    public boolean isError() {
         return error != null;
     }
 

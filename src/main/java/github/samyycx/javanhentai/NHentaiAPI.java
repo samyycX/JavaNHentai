@@ -4,6 +4,7 @@ import github.samyycx.javanhentai.api.NHentaiApiService;
 import github.samyycx.javanhentai.api.NHentaiImageAPI;
 import github.samyycx.javanhentai.box.NError;
 import github.samyycx.javanhentai.box.NResult;
+import github.samyycx.javanhentai.condition.ConditionBuilder;
 import github.samyycx.javanhentai.response.GalleryData;
 import github.samyycx.javanhentai.response.MultipleGalleryData;
 import github.samyycx.javanhentai.response.NSortMethod;
@@ -100,16 +101,20 @@ public class NHentaiAPI implements Interceptor {
     }
 
 
-    public NResult<MultipleGalleryData> searchHentai(String keyword, int page, int perPage, NSortMethod method) {
-        return request(api.searchHentai(keyword, page, perPage, method.getType()));
+    public NResult<MultipleGalleryData> searchHentai(String keyword, int page, NSortMethod method) {
+        return request(api.searchHentai(keyword, page, method.getType()));
     }
 
-    public NResult<MultipleGalleryData> searchHentai(String[] keywords, int page, int perPage, NSortMethod method) {
-        return searchHentai(String.join("+",keywords), page, perPage, method);
+    public NResult<MultipleGalleryData> searchHentai(String[] keywords, int page, NSortMethod method) {
+        return searchHentai(String.join("+",keywords), page, method);
     }
 
-    public NResult<MultipleGalleryData> searchHentai(List<String> keywords, int page, int perPage, NSortMethod method) {
-        return searchHentai(String.join("+",keywords), page, perPage, method);
+    public NResult<MultipleGalleryData> searchHentai(List<String> keywords, int page, NSortMethod method) {
+        return searchHentai(String.join("+",keywords), page, method);
+    }
+
+    public NResult<MultipleGalleryData> searchHentai(ConditionBuilder conditionBuilder, int page, NSortMethod method) {
+        return searchHentai(conditionBuilder.build(), page, method);
     }
 
     public NResult<MultipleGalleryData> searchHentaiByTag(int tagId, int page) {
@@ -126,7 +131,7 @@ public class NHentaiAPI implements Interceptor {
 
     public NResult<List<URL>> getAllImage(int id) {
         NResult<GalleryData> result = getHentai(id);
-        if (result.error()) return new NResult<>(result.getError());
+        if (result.isError()) return new NResult<>(result.getError());
         GalleryData data = result.getData();
         return new NResult<>(getAllImage(data));
     }
@@ -137,7 +142,7 @@ public class NHentaiAPI implements Interceptor {
 
     public NResult<List<URL>> getAllThumbnail(int id) {
         NResult<GalleryData> result = getHentai(id);
-        if (result.error()) return new NResult<>(result.getError());
+        if (result.isError()) return new NResult<>(result.getError());
         GalleryData data = result.getData();
         return new NResult<>(getAllThumbnail(data));
     }
@@ -148,7 +153,7 @@ public class NHentaiAPI implements Interceptor {
 
     public NResult<URL> getCover(int id) {
         NResult<GalleryData> result = getHentai(id);
-        if (result.error()) return new NResult<>(result.getError());
+        if (result.isError()) return new NResult<>(result.getError());
         GalleryData data = result.getData();
         return new NResult<>(getCover(data));
     }
