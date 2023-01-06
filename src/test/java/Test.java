@@ -1,12 +1,3 @@
-import github.samyycx.javanhentai.NHentaiApi;
-import github.samyycx.javanhentai.api.NHentaiApiService;
-import github.samyycx.javanhentai.response.GalleryData;
-import github.samyycx.javanhentai.response.MultipleGalleryData;
-import github.samyycx.javanhentai.response.NSortMethod;
-import retrofit2.Call;
-import retrofit2.Response;
-
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 

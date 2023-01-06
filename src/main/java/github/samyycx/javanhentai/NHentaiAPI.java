@@ -24,7 +24,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class NHentaiApi implements Interceptor {
+public class NHentaiAPI implements Interceptor {
 
     private static final String API_BASE_URL = "https://nhentai.net/api/";
     @Setter
@@ -39,14 +39,14 @@ public class NHentaiApi implements Interceptor {
     private int timeout = 10000;
     private NHentaiImageAPI imageApi = new NHentaiImageAPI();
 
-    public NHentaiApi(@Nullable Proxy proxy, String userAgent, String cfClearanceId) {
+    public NHentaiAPI(@Nullable Proxy proxy, String userAgent, String cfClearanceId) {
         this.proxy = proxy;
         this.userAgent = userAgent;
         this.cfClearanceId = cfClearanceId;
         getRetrofitApi();
     }
 
-    public NHentaiApi(@Nullable Proxy proxy, String userAgent, String cfClearanceId, int timeout) {
+    public NHentaiAPI(@Nullable Proxy proxy, String userAgent, String cfClearanceId, int timeout) {
         this.proxy = proxy;
         this.userAgent = userAgent;
         this.cfClearanceId = cfClearanceId;
