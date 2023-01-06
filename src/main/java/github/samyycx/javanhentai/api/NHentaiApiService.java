@@ -19,17 +19,10 @@ public interface NHentaiApiService {
     Call<GalleryData> getHentaiById(@Path("id") int id);
 
     /**
-     * 网站的关键字搜索功能，可以是tag也可以是标题
-     * @param params 关键字 例如"chinese cosplay uniform"
-     * @param page 页数
-     */
-    @GET("galleries/search")
-    Call<MultipleGalleryData> searchHentai(@Query("query") String params, @Query("page") int page);
-
-    /**
      * 网站的关键字搜索功能 (带排序)，可以是tag也可以是标题
      * @param params 关键字，空格用+号分隔
      * @param page 页数
+     * @param perPage 每页显示本子的数量
      * @param sortMethod 排序方法, 有三种
      *<br><br>
      * popular-today => 今日最热门<br>
@@ -37,7 +30,9 @@ public interface NHentaiApiService {
      * popular => 统计最热门<br>
      */
     @GET("galleries/search")
-    Call<MultipleGalleryData> searchHentaiAndSort(@Query("query") String params, @Query("page") int page, @Query("sort") String sortMethod);
+    Call<MultipleGalleryData> searchHentai(@Query("query") String params, @Query("page") int page, @Query("perPage") int perPage, @Query("sort") String sortMethod);
+
+
 
     /**
      * 根据tag查找本子
