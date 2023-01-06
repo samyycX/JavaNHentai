@@ -23,9 +23,12 @@ import java.io.IOException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class NHentaiAPI implements Interceptor {
+
+    private Random random = new Random();
 
     private static final String API_BASE_URL = "https://nhentai.net/api/";
     @Setter
@@ -72,8 +75,8 @@ public class NHentaiAPI implements Interceptor {
             this.client = new OkHttpClient.Builder()
                     .readTimeout(timeout, TimeUnit.MILLISECONDS)
                     .writeTimeout(timeout, TimeUnit.MILLISECONDS)
-                    .connectTimeout(timeout, TimeUnit.MILLISECONDS)
                     .addInterceptor(this)
+                    .connectTimeout(timeout, TimeUnit.MILLISECONDS)
                     .proxy(proxy)
                     .followRedirects(false)
                     .followSslRedirects(true)
@@ -167,6 +170,29 @@ public class NHentaiAPI implements Interceptor {
         String target = response.header("Location");
         String id = target.replace("/g/","").replace("/","");
         return getHentai(Integer.parseInt(id));
+    }
+
+    public NResult<GalleryData> getRandomHentai(String keyword) {
+        NResult<MultipleGalleryData> result = searchHentai(keyword, 1, NSortMethod.DEFAULT);
+        if (result.isError()) return new NResult<>(result.getError());
+
+        MultipleGalleryData data = result.getData();
+
+        Random random = new Random();
+        if (data.getNum_pages() == 1) return new NResult<>(data.getResult().get(random.nextInt(data.getResult().size())));
+
+        int newPage = random.nextInt(data.getNum_pages())+1;
+        if (newPage == 1) return new NResult<>(data.getResult().get(random.nextInt(data.getResult().size())));
+
+        NResult<MultipleGalleryData> result2 = searchHentai(keyword, newPage, NSortMethod.DEFAULT);
+        if (result2.isError()) return new NResult<>(result2.getError());
+
+        data = result2.getData();
+        return new NResult<>(data.getResult().get(random.nextInt(data.getResult().size())));
+    }
+
+    public NResult<GalleryData> getRandomHentai(ConditionBuilder builder) {
+        return getRandomHentai(builder.build());
     }
 
 

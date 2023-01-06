@@ -32,7 +32,12 @@ public class Test {
                 .include(new GroupCond("000"));
         NResult<MultipleGalleryData> result = api.searchHentai(c2, 1, NSortMethod.DEFAULT);
         System.out.println(result.getData());
+    }
 
+    @org.junit.Test
+    public void testRandomHentai() {
+        NHentaiAPI api = new NHentaiAPI(proxy, userAgent, cfid);
+        System.out.println(api.getRandomHentai("chinese").getData());
     }
 
 }
