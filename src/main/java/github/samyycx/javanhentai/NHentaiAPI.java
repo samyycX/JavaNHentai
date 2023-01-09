@@ -15,6 +15,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.jetbrains.annotations.Nullable;
 import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -41,7 +42,7 @@ public class NHentaiAPI implements Interceptor {
     private OkHttpClient client;
     private NHentaiApiService api;
     private int timeout = 10000;
-    private NHentaiImageAPI imageApi = new NHentaiImageAPI();
+    private static NHentaiImageAPI imageApi = new NHentaiImageAPI();
 
     public NHentaiAPI(@Nullable Proxy proxy, String userAgent, String cfClearanceId) {
         this.proxy = proxy;
@@ -128,7 +129,7 @@ public class NHentaiAPI implements Interceptor {
         return request(api.searchHentaiAlike(id));
     }
 
-    public List<URL> getAllImage(GalleryData data) {
+    public static List<URL> getAllImage(GalleryData data) {
         return imageApi.getAllImageURL(data);
     }
 
@@ -139,7 +140,7 @@ public class NHentaiAPI implements Interceptor {
         return new NResult<>(getAllImage(data));
     }
 
-    public List<URL> getAllThumbnail(GalleryData data) {
+    public static List<URL> getAllThumbnail(GalleryData data) {
         return imageApi.getAllThumbnailURL(data);
     }
 
@@ -150,7 +151,7 @@ public class NHentaiAPI implements Interceptor {
         return new NResult<>(getAllThumbnail(data));
     }
 
-    public URL getCover(GalleryData data) {
+    public static URL getCover(GalleryData data) {
         return imageApi.getCoverURL(data);
     }
 
@@ -210,6 +211,5 @@ public class NHentaiAPI implements Interceptor {
                 return new NResult<>(NError.OTHER);
         }
     }
-
 
 }
