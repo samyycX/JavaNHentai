@@ -112,7 +112,7 @@ public class GalleryData {
         return categories;
     }
 
-    public List<URL> getAllImages() {
+    public List<URL> getAllImage() {
         return NHentaiAPI.getAllImage(this);
     }
 

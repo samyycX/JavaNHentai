@@ -32,8 +32,9 @@ public abstract class NCallback<T> implements Callback<T> {
                 onSuccessOriginal(data, call, response);
                 return;
             default:
-                onUnknownError(response.code(), response.message());
-                onUnknownErrorOriginal(response.code(), response.message(), call, response);
+                T data2 = response.body();
+                onUnknownError(response.code(), response.message(), data2);
+                onUnknownErrorOriginal(response.code(), response.message(), data2, call, response);
         }
     }
 
@@ -49,7 +50,8 @@ public abstract class NCallback<T> implements Callback<T> {
 
     public void onEmptyResult() {}
 
-    public void onUnknownError(int code, String message) {}
+    public void onUnknownError(int code, String message, T data) {}
+
     public void onFailed(Throwable t) {}
 
     public void onSuccessOriginal(T data, @NotNull Call<T> call, Response<T> response) {}
@@ -58,7 +60,7 @@ public abstract class NCallback<T> implements Callback<T> {
 
     public void onEmptyResultOriginal(@NotNull Call<T> call, Response<T> response) {}
 
-    public void onUnknownErrorOriginal(int code, String message, @NotNull Call<T> call, Response<T> response) {}
+    public void onUnknownErrorOriginal(int code, String message, T data, @NotNull Call<T> call, Response<T> response) {}
 
     public void onFailedOriginal(@NotNull Call<T> call, @NotNull Throwable t) {}
 }

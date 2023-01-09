@@ -55,7 +55,7 @@ public class Test {
         System.out.println(data.getCategories());
         System.out.println(data.getCover());
         System.out.println(data.getAllThumbnail());
-        System.out.println(data.getAllImages());
+        System.out.println(data.getAllImage());
     }
 
     @org.junit.Test
@@ -88,8 +88,8 @@ public class Test {
             }
 
             @Override
-            public void onUnknownError(int code, String message) {
-
+            public void onUnknownError(int code, String message, MultipleGalleryData data) {
+                super.onUnknownError(code, message, data);
             }
 
             @Override
