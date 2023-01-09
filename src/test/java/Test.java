@@ -6,6 +6,7 @@ import github.samyycx.javanhentai.condition.component.*;
 import github.samyycx.javanhentai.response.GalleryData;
 import github.samyycx.javanhentai.response.MultipleGalleryData;
 import github.samyycx.javanhentai.response.NSortMethod;
+import org.jetbrains.annotations.NotNull;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -64,11 +65,16 @@ public class Test {
         //api.updateCfClearanceId("x");
         api.searchHentaiAsync(new ConditionBuilder().include(new LanguageCond("chinese")).build(), 1, NSortMethod.DEFAULT, new NCallback<MultipleGalleryData>() {
             @Override
-            public void onSuccess(MultipleGalleryData data) {
+            public void onSuccess(@NotNull MultipleGalleryData data) {
                 for (GalleryData singleData : data.getResult()) {
                     System.out.println(singleData.getTitle().getPretty());
                     System.out.println(singleData.getLanguage());
                 }
+            }
+
+            @Override
+            public void onSuccessOriginal(MultipleGalleryData data, @NotNull Call<MultipleGalleryData> call, Response<MultipleGalleryData> response) {
+                System.out.println(call.isExecuted());
             }
 
             @Override
