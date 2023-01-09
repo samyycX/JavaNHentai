@@ -2,7 +2,7 @@ package github.samyycx.javanhentai;
 
 import github.samyycx.javanhentai.api.NHentaiApiService;
 import github.samyycx.javanhentai.api.NHentaiImageAPI;
-import github.samyycx.javanhentai.box.NError;
+import github.samyycx.javanhentai.box.NErrorType;
 import github.samyycx.javanhentai.box.NResult;
 import github.samyycx.javanhentai.condition.ConditionBuilder;
 import github.samyycx.javanhentai.response.GalleryData;
@@ -104,6 +104,9 @@ public class NHentaiAPI implements Interceptor {
         return request(api.getHentaiById(id));
     }
 
+    public void getHentaiAsync(int id, Callback<GalleryData> callback) {
+        api.getHentaiById(id).enqueue(callback);
+    }
 
     public NResult<MultipleGalleryData> searchHentai(String keyword, int page, NSortMethod method) {
         return request(api.searchHentai(keyword, page, method.getType()));
@@ -121,12 +124,36 @@ public class NHentaiAPI implements Interceptor {
         return searchHentai(conditionBuilder.build(), page, method);
     }
 
+    public void searchHentaiAsync(String keyword, int page, NSortMethod method, Callback<MultipleGalleryData> callback) {
+        api.searchHentai(keyword, page, method.getType()).enqueue(callback);
+    }
+
+    public void searchHentaiAsync(String[] keywords, int page, NSortMethod method, Callback<MultipleGalleryData> callback) {
+        searchHentaiAsync(String.join("+", keywords), page, method, callback);
+    }
+
+    public void searchHentaiAsync(List<String> keywords, int page, NSortMethod method, Callback<MultipleGalleryData> callback) {
+        searchHentaiAsync(String.join("+",keywords), page, method, callback);
+    }
+
+    public void searchHentaiAsync(ConditionBuilder conditionBuilder, int page, NSortMethod method, Callback<MultipleGalleryData> callback) {
+        searchHentaiAsync(conditionBuilder.build(), page, method, callback);
+    }
+
     public NResult<MultipleGalleryData> searchHentaiByTag(int tagId, int page) {
         return request(api.searchHentaiByTag(tagId, page));
     }
 
+    public void searchHentaiByTagAsync(int tagId, int page, Callback<MultipleGalleryData> callback) {
+        api.searchHentaiByTag(tagId, page).enqueue(callback);
+    }
+
     public NResult<MultipleGalleryData> searchHentaiAlike(int id) {
         return request(api.searchHentaiAlike(id));
+    }
+
+    public void searchHentaiAlikeAsync(int id, Callback<MultipleGalleryData> callback) {
+        api.searchHentaiAlike(id).enqueue(callback);
     }
 
     public static List<URL> getAllImage(GalleryData data) {
@@ -135,7 +162,7 @@ public class NHentaiAPI implements Interceptor {
 
     public NResult<List<URL>> getAllImage(int id) {
         NResult<GalleryData> result = getHentai(id);
-        if (result.isError()) return new NResult<>(result.getError());
+        if (result.isError()) return new NResult<>(result);
         GalleryData data = result.getData();
         return new NResult<>(getAllImage(data));
     }
@@ -146,7 +173,7 @@ public class NHentaiAPI implements Interceptor {
 
     public NResult<List<URL>> getAllThumbnail(int id) {
         NResult<GalleryData> result = getHentai(id);
-        if (result.isError()) return new NResult<>(result.getError());
+        if (result.isError()) return new NResult<>(result);
         GalleryData data = result.getData();
         return new NResult<>(getAllThumbnail(data));
     }
@@ -157,7 +184,7 @@ public class NHentaiAPI implements Interceptor {
 
     public NResult<URL> getCover(int id) {
         NResult<GalleryData> result = getHentai(id);
-        if (result.isError()) return new NResult<>(result.getError());
+        if (result.isError()) return new NResult<>(result);
         GalleryData data = result.getData();
         return new NResult<>(getCover(data));
     }
@@ -167,7 +194,7 @@ public class NHentaiAPI implements Interceptor {
         String randomUrl = "https://nhentai.net/random/";
         Request request = new Request.Builder().url(randomUrl).build();
         okhttp3.Response response = client.newCall(request).execute();
-        if (response.code() == 503) return new NResult<>(NError.CFID_EXPIRED);
+        if (response.code() == 503) return new NResult<>(NErrorType.CFID_INVALID, 503, response.message());
         String target = response.header("Location");
         String id = target.replace("/g/","").replace("/","");
         return getHentai(Integer.parseInt(id));
@@ -175,7 +202,7 @@ public class NHentaiAPI implements Interceptor {
 
     public NResult<GalleryData> getRandomHentai(String keyword) {
         NResult<MultipleGalleryData> result = searchHentai(keyword, 1, NSortMethod.DEFAULT);
-        if (result.isError()) return new NResult<>(result.getError());
+        if (result.isError()) return new NResult<>(result.getError(), result.getCode(), result.getMessage());
 
         MultipleGalleryData data = result.getData();
 
@@ -186,7 +213,7 @@ public class NHentaiAPI implements Interceptor {
         if (newPage == 1) return new NResult<>(data.getResult().get(random.nextInt(data.getResult().size())));
 
         NResult<MultipleGalleryData> result2 = searchHentai(keyword, newPage, NSortMethod.DEFAULT);
-        if (result2.isError()) return new NResult<>(result2.getError());
+        if (result2.isError()) return new NResult<>(result2);
 
         data = result2.getData();
         return new NResult<>(data.getResult().get(random.nextInt(data.getResult().size())));
@@ -202,13 +229,19 @@ public class NHentaiAPI implements Interceptor {
         Response<T> resp = call.execute();
         switch (resp.code()) {
             case 503:
-                return new NResult<>(NError.CFID_EXPIRED);
+                return new NResult<>(NErrorType.CFID_INVALID, resp.code(), resp.message());
             case 404:
-                return new NResult<>(NError.NOT_FOUND);
+                return new NResult<>(NErrorType.EMPTY_RESULT, resp.code(), resp.message());
             case 200:
+                T data = resp.body();
+                if (data instanceof MultipleGalleryData) {
+                    if (((MultipleGalleryData) data).getResult().isEmpty()) {
+                        return new NResult<>(NErrorType.EMPTY_RESULT, resp.code(), resp.message());
+                    }
+                }
                 return new NResult<>(resp.body());
             default:
-                return new NResult<>(NError.OTHER);
+                return new NResult<>(NErrorType.OTHER, resp.code(), resp.message());
         }
     }
 

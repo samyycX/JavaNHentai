@@ -1,10 +1,14 @@
 import github.samyycx.javanhentai.NHentaiAPI;
+import github.samyycx.javanhentai.async.NCallback;
 import github.samyycx.javanhentai.box.NResult;
 import github.samyycx.javanhentai.condition.*;
 import github.samyycx.javanhentai.condition.component.*;
 import github.samyycx.javanhentai.response.GalleryData;
 import github.samyycx.javanhentai.response.MultipleGalleryData;
 import github.samyycx.javanhentai.response.NSortMethod;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -51,6 +55,44 @@ public class Test {
         System.out.println(data.getCover());
         System.out.println(data.getAllThumbnail());
         System.out.println(data.getAllImages());
+    }
+
+    @org.junit.Test
+    public void testAsync() throws InterruptedException {
+        NHentaiAPI api = new NHentaiAPI(proxy, userAgent, cfid);
+        // simulate failure
+        //api.updateCfClearanceId("x");
+        api.searchHentaiAsync(new ConditionBuilder().include(new LanguageCond("chinese")).build(), 1, NSortMethod.DEFAULT, new NCallback<MultipleGalleryData>() {
+            @Override
+            public void onSuccess(MultipleGalleryData data) {
+                for (GalleryData singleData : data.getResult()) {
+                    System.out.println(singleData.getTitle().getPretty());
+                    System.out.println(singleData.getLanguage());
+                }
+            }
+
+            @Override
+            public void onCfidInvalid() {
+                System.out.println("cfid invalid");
+            }
+
+            @Override
+            public void onEmptyResult() {
+                System.out.println("empty result");
+            }
+
+            @Override
+            public void onUnknownError(int code, String message) {
+
+            }
+
+            @Override
+            public void onFailed(Throwable t) {
+                System.out.println("failed");
+            }
+        });
+
+        Thread.sleep(10000);
     }
 
     @org.junit.Test

@@ -2,16 +2,29 @@ package github.samyycx.javanhentai.box;
 
 import lombok.Getter;
 
+@Getter
 public class NResult<T> {
 
-    @Getter
-    private NError error;
+    private NErrorType error;
+    private int code;
+    private String message;
 
-    @Getter
     private T data;
 
-    public NResult(NError error) {
+    public NResult(NErrorType error, int code, String message) {
         this.error = error;
+        this.code = code;
+        this.message = message;
+    }
+
+    public NResult(NResult<?> result) {
+        if (result.isError()) {
+            this.error = result.getError();
+            this.code = result.getCode();
+            this.message = result.getMessage();
+        } else {
+            throw new IllegalArgumentException();
+        }
     }
 
     public NResult(T data) {
@@ -22,12 +35,5 @@ public class NResult<T> {
         return error != null;
     }
 
-    public NError getError() {
-        return error;
-    }
-
-    public T getData() {
-        return data;
-    }
 
 }
